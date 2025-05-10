@@ -15,7 +15,8 @@ const config = {
         'manifest.json',
         'icons/icon16.png',
         'icons/icon48.png',
-        'icons/icon128.png'
+        'icons/icon128.png',
+        'content.css'
     ]
 };
 
@@ -41,10 +42,13 @@ config.filesToCopy.forEach(file => {
     } else {
         console.warn(`Warning: ${srcPath} does not exist. Skipping.`);
 
-        // For icon files, create a placeholder if they don't exist
-        if (file.startsWith('icons/icon') && file.endsWith('.png')) {
+        // For icon files, create a placeholder if they don't exist, but only in development mode
+        if (process.env.NODE_ENV !== 'production' && file.startsWith('icons/icon') && file.endsWith('.png')) {
             console.log(`Creating placeholder for ${file}...`);
             createPlaceholderIcon(distPath);
+        } else if (process.env.NODE_ENV === 'production' && file.startsWith('icons/icon') && file.endsWith('.png')) {
+            console.error(`Error: Missing icon file ${file} in production build. Please add the icon file before building for production.`);
+            process.exit(1); // Exit with error code in production
         }
     }
 });

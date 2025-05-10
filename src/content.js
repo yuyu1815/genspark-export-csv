@@ -23,58 +23,12 @@ const XlsxPopulate = require('xlsx-populate');
         excelFileName: 'genspark_export.xlsx'
     };
 
-    // Add CSS styling for the present-and-export element and our buttons
-    const style = document.createElement('style');
-    style.textContent = `
-    .present-and-export[data-v-1803aa4e] {
-        align-items: center;
-        background-color: #fff;
-        border: 1px solid #eaeaea;
-        border-radius: 16px;
-        cursor: pointer;
-        display: flex;
-        flex-shrink: 0;
-        gap: 4px;
-        height: 32px;
-        justify-content: center;
-        margin-left: 16px;
-        padding: 0 16px;
-        transition: all .3s ease;
-        width: -moz-fit-content;
-        width: fit-content;
-    }
-    .genspark-buttons-container {
-        display: flex;
-        justify-content: flex-end;
-        margin-left: auto;
-    }
-    .button.genspark-export-csv-button,
-    .button.genspark-export-excel-button {
-        align-items: center;
-        background-color: #fff;
-        border: 1px solid #eaeaea;
-        border-radius: 16px;
-        color: #000;
-        cursor: pointer;
-        display: flex;
-        flex-shrink: 0;
-        gap: 4px;
-        height: 32px;
-        justify-content: center;
-        margin-left: 16px;
-        padding: 0 16px;
-        transition: all .3s ease;
-        width: -moz-fit-content;
-        width: fit-content;
-    }
-    .present-and-export-text {
-        color: #000;
-    }
-    .button.genspark-export-excel-button {
-        background-color: #e6f7e6;
-    }
-    `;
-    document.head.appendChild(style);
+    // Load CSS from external file
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.type = 'text/css';
+    link.href = chrome.runtime.getURL('content.css');
+    document.head.appendChild(link);
 
     // Check if we're on a GenSpark page with a table
     function checkForTable() {
@@ -208,6 +162,7 @@ const XlsxPopulate = require('xlsx-populate');
 
                 // Use a more direct approach to trigger the click
                 try {
+                    // First attempt: Use MouseEvent
                     tab.dispatchEvent(new MouseEvent('click', {
                         bubbles: true,
                         cancelable: true,
@@ -219,12 +174,33 @@ const XlsxPopulate = require('xlsx-populate');
 
                     // Verify the tab was actually activated
                     if (!tab.classList.contains(config.activeTabClass)) {
-                        console.log(`GenSpark Export: Tab "${tabName}" was not activated, trying again`);
-                        tab.click(); // Try a direct click as fallback
+                        console.log(`GenSpark Export: Tab "${tabName}" was not activated, trying direct click`);
+
+                        // Second attempt: Try a direct click as fallback
+                        tab.click();
                         await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        // If tab is still not active, try one more time with a longer wait
+                        if (!tab.classList.contains(config.activeTabClass)) {
+                            console.log(`GenSpark Export: Tab "${tabName}" still not activated, trying one more time`);
+
+                            // Third attempt: Try clicking again with a longer wait
+                            tab.click();
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+
+                            // If tab is still not active after three attempts, log an error and continue
+                            if (!tab.classList.contains(config.activeTabClass)) {
+                                console.error(`GenSpark Export: Tab "${tabName}" could not be activated after multiple attempts. Skipping this tab.`);
+                                continue; // Skip to the next tab
+                            }
+                        }
                     }
+
+                    console.log(`GenSpark Export: Successfully activated tab "${tabName}"`);
                 } catch (error) {
                     console.error(`GenSpark Export: Error clicking tab "${tabName}":`, error);
+                    console.log(`GenSpark Export: Skipping tab "${tabName}" due to error`);
+                    continue; // Skip to the next tab
                 }
             }
 
@@ -437,6 +413,7 @@ const XlsxPopulate = require('xlsx-populate');
 
                 // Use a more direct approach to trigger the click
                 try {
+                    // First attempt: Use MouseEvent
                     tab.dispatchEvent(new MouseEvent('click', {
                         bubbles: true,
                         cancelable: true,
@@ -448,12 +425,33 @@ const XlsxPopulate = require('xlsx-populate');
 
                     // Verify the tab was actually activated
                     if (!tab.classList.contains(config.activeTabClass)) {
-                        console.log(`GenSpark Export: Tab "${tabName}" was not activated, trying again`);
-                        tab.click(); // Try a direct click as fallback
+                        console.log(`GenSpark Export: Tab "${tabName}" was not activated, trying direct click`);
+
+                        // Second attempt: Try a direct click as fallback
+                        tab.click();
                         await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        // If tab is still not active, try one more time with a longer wait
+                        if (!tab.classList.contains(config.activeTabClass)) {
+                            console.log(`GenSpark Export: Tab "${tabName}" still not activated, trying one more time`);
+
+                            // Third attempt: Try clicking again with a longer wait
+                            tab.click();
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+
+                            // If tab is still not active after three attempts, log an error and continue
+                            if (!tab.classList.contains(config.activeTabClass)) {
+                                console.error(`GenSpark Export: Tab "${tabName}" could not be activated after multiple attempts. Skipping this tab.`);
+                                continue; // Skip to the next tab
+                            }
+                        }
                     }
+
+                    console.log(`GenSpark Export: Successfully activated tab "${tabName}"`);
                 } catch (error) {
                     console.error(`GenSpark Export: Error clicking tab "${tabName}":`, error);
+                    console.log(`GenSpark Export: Skipping tab "${tabName}" due to error`);
+                    continue; // Skip to the next tab
                 }
             }
 
