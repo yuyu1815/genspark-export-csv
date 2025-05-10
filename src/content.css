@@ -1,0 +1,51 @@
+.present-and-export[data-v-1803aa4e] {
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 16px;
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    height: 32px;
+    justify-content: center;
+    margin-left: 16px;
+    padding: 0 16px;
+    transition: all .3s ease;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.genspark-buttons-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.button.genspark-export-csv-button,
+.button.genspark-export-excel-button {
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 16px;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    height: 32px;
+    justify-content: center;
+    margin-left: 16px;
+    padding: 0 16px;
+    transition: all .3s ease;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.present-and-export-text {
+    color: #000;
+}
+
+.button.genspark-export-excel-button {
+    background-color: #e6f7e6;
+}

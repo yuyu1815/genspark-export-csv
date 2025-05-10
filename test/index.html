@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenSpark Export CSV Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .global-canvas {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .present-and-export {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            width: fit-content;
+        }
+        .present-and-export svg {
+            margin-right: 8px;
+        }
+        .present-and-export-text {
+            font-size: 14px;
+            color: #333;
+        }
+        .dataset-table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        .sticky-cell {
+            position: sticky;
+            left: 0;
+            background-color: #f2f2f2;
+            z-index: 1;
+        }
+        .button {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            width: fit-content;
+            margin-right: 10px;
+        }
+        .buttons-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GenSpark Export CSV Test Page</h1>
+        <p>This page simulates the GenSpark UI to test the CSV export functionality.</p>
+        
+        <div class="global-canvas mobile-visible sheets-global-canvas">
+            <div class="tool-call-result-sidebar-inner">
+                <div class="component-root-container in-global-canvas">
+                    <div class="tabs-component">
+                        <div class="tab-header">
+                            <div class="sheets-bar">
+                                <div class="sheets-bar-item active">
+                                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M13.6667 2.16602H2.33335C1.96516 2.16602 1.66669 2.46449 1.66669 2.83268V14.166C1.66669 14.5342 1.96516 14.8327 2.33335 14.8327H13.6667C14.0349 14.8327 14.3334 14.5342 14.3334 14.166V2.83268C14.3334 2.46449 14.0349 2.16602 13.6667 2.16602Z" stroke="#606366" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M1.66669 6.5H14.3334" stroke="#606366" stroke-width="1.33333" stroke-linecap="round"></path>
+                                        <path d="M1.66669 10.5H14.3334" stroke="#606366" stroke-width="1.33333" stroke-linecap="round"></path>
+                                        <path d="M5.66669 2.16602V14.8327" stroke="#606366" stroke-width="1.33333" stroke-linecap="round"></path>
+                                        <path d="M10 2.16602V14.8327" stroke="#606366" stroke-width="1.33333" stroke-linecap="round"></path>
+                                    </svg>
+                                    <span class="sheets-bar-item-name">Test Data</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-row items-center ml-[16px] flex-shrink-0">
+                                <div class="present-and-export">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="open-icon">
+                                        <path d="M17.0003 3H11.4448M17.0003 3L8.66699 11.3333M17.0003 3V8.55556" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                        <path d="M17 13.1111V15.4444C17 15.857 16.8361 16.2527 16.5444 16.5444C16.2527 16.8361 15.857 17 15.4444 17H4.55556C4.143 17 3.74733 16.8361 3.45561 16.5444C3.16389 16.2527 3 15.857 3 15.4444V4.55556C3 4.143 3.16389 3.74733 3.45561 3.45561C3.74733 3.16389 4.143 3 4.55556 3H6.88889" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                    </svg>
+                                    <div class="present-and-export-text">表示</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-area">
+                            <div class="tab-pane">
+                                <div class="table-tab">
+                                    <div class="dataset-table-container j-dataset-table-container table-selection-enabled table-sheet">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th class="sticky sticky-corner" style="z-index: 10000;"></th>
+                                                    <th class="sticky sticky-header">名前</th>
+                                                    <th class="sticky sticky-header">タイプ</th>
+                                                    <th class="sticky sticky-header">主な特徴</th>
+                                                    <th class="sticky sticky-header">対応プラットフォーム</th>
+                                                    <th class="sticky sticky-header">おすすめ度（10段階）</th>
+                                                    <th class="sticky sticky-header">おすすめユーザー/用途</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="sticky sticky-cell">1</td>
+                                                    <td class="left-in-selection right-in-selection"><strong>Dify</strong></td>
+                                                    <td><em>ノーコードAIアプリ開発プラットフォーム</em></td>
+                                                    <td>日本語UI対応、直感的な操作でAIアプリ開発が可能、RAG対応</td>
+                                                    <td>SaaS/セルフホスト</td>
+                                                    <td><strong>9</strong></td>
+                                                    <td>ビジネスユーザー、カスタムなAIチャットボットやアシスタントを作りたい人</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="sticky sticky-cell">2</td>
+                                                    <td class="left-in-selection right-in-selection"><strong>Cursor</strong></td>
+                                                    <td><em>AIアシストエディタ</em></td>
+                                                    <td>文書作成や簡単なアプリ開発をサポート、プログラミング知識不要</td>
+                                                    <td>Windows/Mac</td>
+                                                    <td><strong>8</strong></td>
+                                                    <td>文書作成者、コンテンツクリエイター、個人向けツール開発</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="sticky sticky-cell">3</td>
+                                                    <td class="left-in-selection right-in-selection"><strong>Link Reader</strong></td>
+                                                    <td><em>ChatGPTプラグイン</em></td>
+                                                    <td>Webサイトや記事の内容を読み込み・要約してくれる</td>
+                                                    <td>ChatGPT Plus</td>
+                                                    <td><strong>9</strong></td>
+                                                    <td>調査研究、ニュース記事やブログの要約が必要な人</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <div class="bottom-bar-container bottom-bar">
+                                            <div class="bottom-bar-inner">
+                                                <div class="buttons-container">
+                                                    <div class="button">
+                                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M14.8605 14.8566L11.8273 11.8234M11.8273 11.8234C12.3462 11.3046 12.7577 10.6886 13.0385 10.0107C13.3193 9.33284 13.4638 8.60628 13.4638 7.87254C13.4638 7.13879 13.3193 6.41223 13.0385 5.73434C12.7577 5.05645 12.3462 4.4405 11.8273 3.92166C11.3085 3.40283 10.6925 2.99126 10.0146 2.71047C9.33675 2.42968 8.61019 2.28516 7.87644 2.28516C7.1427 2.28516 6.41614 2.42968 5.73825 2.71047C5.06035 2.99126 4.4444 3.40283 3.92557 3.92166C2.87773 4.9695 2.28906 6.39067 2.28906 7.87254C2.28906 9.3544 2.87773 10.7756 3.92557 11.8234C4.97341 12.8713 6.39458 13.4599 7.87644 13.4599C9.35831 13.4599 10.7795 12.8713 11.8273 11.8234Z" stroke="var(--iconColor,#999)" stroke-linecap="round" stroke-linejoin="round"></path>
+                                                        </svg> 検索を続ける
+                                                    </div>
+                                                    <div class="button">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <circle cx="11.9967" cy="11.9967" r="9.53571" stroke="currentColor" stroke-width="1.5"></circle>
+                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M19.3761 9.33502C19.669 9.04212 19.669 8.56725 19.3761 8.27436C19.0832 7.98146 18.6084 7.98146 18.3155 8.27436L13.4667 13.1232L12.5285 12.1836C12.2358 11.8904 11.761 11.8901 11.4679 12.1827C11.1747 12.4754 11.1744 12.9503 11.467 13.2434L12.9355 14.7142C13.0761 14.855 13.2669 14.9342 13.466 14.9342C13.665 14.9343 13.8559 14.8553 13.9966 14.7146L19.3761 9.33502ZM14.0077 9.40198C14.3006 9.10909 14.3006 8.63421 14.0077 8.34132C13.7148 8.04843 13.2399 8.04843 12.947 8.34132L8.09778 13.1905L5.67096 10.7637C5.37806 10.4708 4.90319 10.4708 4.61029 10.7637C4.3174 11.0566 4.3174 11.5315 4.61029 11.8244L7.56745 14.7815C7.86034 15.0744 8.33521 15.0744 8.62811 14.7815L14.0077 9.40198Z" fill="currentColor"></path>
+                                                        </svg> 内容をファクトチェック
+                                                    </div>
+                                                    <div class="button">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <rect x="3.32031" y="2.46094" width="17.3571" height="19.0714" rx="2.67857" stroke="currentColor" stroke-width="1.5"></rect>
+                                                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.32731 12.8524C9.32729 12.4401 8.98992 12.1059 8.57378 12.1059C8.15763 12.1059 7.8203 12.4402 7.82031 12.8524L7.82049 17.1642C7.82051 17.5765 8.15787 17.9107 8.57402 17.9107C8.99016 17.9107 9.3275 17.5764 9.32749 17.1642L9.32731 12.8524ZM16.1344 6.85445C16.1344 6.44223 15.797 6.10805 15.3808 6.10805C14.9646 6.10805 14.6272 6.44223 14.6272 6.85445L14.6272 17.1677C14.6272 17.5799 14.9646 17.9141 15.3808 17.9141C15.797 17.9141 16.1344 17.5799 16.1344 17.1677L16.1344 6.85445ZM12.7093 10.2856C12.7093 9.87337 12.372 9.53919 11.9558 9.53916C11.5396 9.53914 11.2022 9.8733 11.2021 10.2855L11.2018 17.1676C11.2018 17.5798 11.5391 17.914 11.9553 17.9141C12.3715 17.9141 12.7089 17.5799 12.709 17.1677L12.7093 10.2856Z" fill="currentColor"></path>
+                                                        </svg> 視覚化
+                                                    </div>
+                                                </div>
+                                                <div class="rows-counter"><span class="counter">3</span> &nbsp;行</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <h2>Instructions</h2>
+            <p>This page simulates the GenSpark UI structure. To test the extension:</p>
+            <ol>
+                <li>Build the extension using the build.bat script</li>
+                <li>Load the extension in Chrome</li>
+                <li>Open this test page in Chrome</li>
+                <li>The extension should detect this page and add an "Export to CSV" button next to the "表示" button</li>
+                <li>Click the "Export to CSV" button to download the table data as a CSV file</li>
+            </ol>
+            <p><strong>Note:</strong> For the extension to work with this test page, you may need to modify the manifest.json to include the local file URL pattern in the content_scripts matches array.</p>
+        </div>
+    </div>
+</body>
+</html>
