@@ -1,7 +1,6 @@
 /**
- * Build script for GenSpark Export Chrome Extension
+ * Build script for HTML to Figma Chrome Extension
  * This script copies necessary files to the dist directory
- * Note: content.js and background.js are now bundled by webpack
  */
 
 const fs = require('fs-extra');
@@ -9,13 +8,14 @@ const path = require('path');
 
 // Configuration
 const config = {
-    srcDir: 'src',
+    srcDir: 'src/extensions',
     distDir: 'dist',
     filesToCopy: [
         'manifest.json',
         'icons/icon16.png',
         'icons/icon48.png',
         'icons/icon128.png',
+        'popup.html',
         'content.css'
     ]
 };
@@ -48,7 +48,7 @@ config.filesToCopy.forEach(file => {
             createPlaceholderIcon(distPath);
         } else if (process.env.NODE_ENV === 'production' && file.startsWith('icons/icon') && file.endsWith('.png')) {
             console.warn(`Warning: Missing icon file ${file} in production build. 
-            Please add the icon file to the src/icons directory before building for production.
+            Please add the icon file to the src/extensions/icons directory before building for production.
             Chrome extensions require icons to be properly displayed in the browser.
             You can create your own icon or use a placeholder during development.`);
 
@@ -70,7 +70,7 @@ function createPlaceholderIcon(filePath) {
         filePath + '.txt', 
         'This is a placeholder for the icon file.\n' +
         'Please replace with an actual PNG image file.\n' +
-        'See src/icons/README.md for instructions.'
+        'See src/extensions/icons/README.md for instructions.'
     );
     console.log(`Created placeholder: ${filePath}.txt`);
 }

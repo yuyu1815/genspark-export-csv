@@ -11,13 +11,14 @@ This Chrome extension adds export functionality to the GenSpark AI application. 
 ```
 genspark-export-csv/
 ├── src/                      # Source code
-│   ├── manifest.json         # Extension configuration
-│   ├── content.js            # Content script for GenSpark pages
-│   ├── background.js         # Background script
-│   └── icons/                # Extension icons
-│       ├── icon16.png        # 16x16 icon
-│       ├── icon48.png        # 48x48 icon
-│       └── icon128.png       # 128x128 icon
+│   └── extensions/           # Extension-related code
+│       ├── manifest.json     # Extension configuration
+│       ├── content.js        # Content script for GenSpark pages
+│       ├── background.js     # Background script
+│       └── icons/            # Extension icons
+│           ├── icon16.png    # 16x16 icon
+│           ├── icon48.png    # 48x48 icon
+│           └── icon128.png   # 128x128 icon
 ├── test/                     # Test files
 │   ├── index.html            # Test page simulating GenSpark UI
 │   └── README.md             # Test instructions

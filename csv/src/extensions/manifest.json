@@ -14,8 +14,13 @@
   ],
   "content_scripts": [
     {
-      "matches": ["*://www.genspark.ai/agents?*", "*://genspark.genspark.site/sheets*"],
-      "js": ["content.js"]
+      "matches": [
+        "*://www.genspark.ai/agents?*",
+        "*://genspark.genspark.site/sheets*"
+      ],
+      "js": [
+        "content.js"
+      ]
     }
   ],
   "background": {

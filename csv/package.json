@@ -2,7 +2,7 @@
   "name": "genspark-export-csv",
   "version": "1.0.0",
   "description": "Chrome extension to add CSV export functionality to GenSpark AI application",
-  "main": "src/background.js",
+  "main": "src/extensions/background.js",
   "scripts": {
     "build": "webpack && node build.js",
     "webpack": "webpack",
@@ -26,6 +26,9 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
-    "xlsx-populate": "^1.21.0"
+    "xlsx-populate": "^1.21.0",
+    "@builder.io/html-to-figma": "^0.1.3",
+    "jsdom": "^22.1.0",
+    "node-fetch": "^2.6.12"
   }
 }

@@ -6,7 +6,7 @@
 // Import xlsx-populate
 const XlsxPopulate = require('xlsx-populate');
 
-(function() {
+(function () {
     'use strict';
 
     // Configuration
@@ -79,7 +79,7 @@ const XlsxPopulate = require('xlsx-populate');
         `;
 
         // Add click event listener for CSV button
-        csvButton.addEventListener('click', function() {
+        csvButton.addEventListener('click', function () {
             exportAllTabsToCSV(tableElement);
         });
 
@@ -96,7 +96,7 @@ const XlsxPopulate = require('xlsx-populate');
         `;
 
         // Add click event listener for Excel button
-        excelButton.addEventListener('click', function() {
+        excelButton.addEventListener('click', function () {
             exportAllTabsToExcel(tableElement);
         });
 
@@ -152,9 +152,9 @@ const XlsxPopulate = require('xlsx-populate');
         // Process each tab
         for (let i = 0; i < tabs.length; i++) {
             const tab = tabs[i];
-            const tabName = tab.querySelector('.sheets-bar-item-name')?.textContent.trim() || `Tab ${i+1}`;
+            const tabName = tab.querySelector('.sheets-bar-item-name')?.textContent.trim() || `Tab ${i + 1}`;
 
-            console.log(`GenSpark Export: Processing tab "${tabName}" (${i+1}/${tabs.length})`);
+            console.log(`GenSpark Export: Processing tab "${tabName}" (${i + 1}/${tabs.length})`);
 
             // If this tab is not active, click it
             if (!tab.classList.contains(config.activeTabClass)) {
@@ -276,7 +276,7 @@ const XlsxPopulate = require('xlsx-populate');
             rows.push(rowData);
         });
 
-        return { headers, rows };
+        return {headers, rows};
     }
 
     // Combine data from all tabs and download as CSV
@@ -307,7 +307,7 @@ const XlsxPopulate = require('xlsx-populate');
         });
 
         // Create a Blob with the CSV content
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
         const url = URL.createObjectURL(blob);
 
         // Create a link to download the CSV file
@@ -342,7 +342,7 @@ const XlsxPopulate = require('xlsx-populate');
         csvContent = BOM + csvContent;
 
         // Create a Blob with the CSV content
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
         const url = URL.createObjectURL(blob);
 
         // Create a link to download the CSV file
@@ -403,9 +403,9 @@ const XlsxPopulate = require('xlsx-populate');
         // Process each tab
         for (let i = 0; i < tabs.length; i++) {
             const tab = tabs[i];
-            const tabName = tab.querySelector('.sheets-bar-item-name')?.textContent.trim() || `Tab ${i+1}`;
+            const tabName = tab.querySelector('.sheets-bar-item-name')?.textContent.trim() || `Tab ${i + 1}`;
 
-            console.log(`GenSpark Export: Processing tab "${tabName}" (${i+1}/${tabs.length}) for Excel`);
+            console.log(`GenSpark Export: Processing tab "${tabName}" (${i + 1}/${tabs.length}) for Excel`);
 
             // If this tab is not active, click it
             if (!tab.classList.contains(config.activeTabClass)) {
@@ -507,8 +507,8 @@ const XlsxPopulate = require('xlsx-populate');
                 const sheetName = tabData.tabName.replace(/[\[\]\\\/\?\*:]/g, '') || `Sheet${index + 1}`;
 
                 // Get or add the sheet (use Sheet1 for the first tab, add new sheets for others)
-                const sheet = index === 0 ? 
-                    workbook.sheet(0).name(sheetName) : 
+                const sheet = index === 0 ?
+                    workbook.sheet(0).name(sheetName) :
                     workbook.addSheet(sheetName);
 
                 // Add headers to the first row

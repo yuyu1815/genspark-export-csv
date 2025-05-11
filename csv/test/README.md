@@ -17,7 +17,7 @@ This directory contains a test page that simulates the GenSpark UI structure to 
 
 By default, Chrome extensions can't run on local file URLs (`file://`). To test with the local test page, you need to modify the manifest.json file to allow the extension to run on local files:
 
-1. Open `src/manifest.json`
+1. Open `src/extensions/manifest.json`
 2. Add `"file://*"` to the `matches` array in the `content_scripts` section:
 
 ```json

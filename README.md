@@ -21,11 +21,12 @@ This Chrome extension adds export functionality to the GenSpark AI application. 
 
 ## Installation
 1. Clone this repository
-2. Run the build script: `build.bat`
-3. Open Chrome and navigate to `chrome://extensions/`
-4. Enable "Developer mode" (toggle in the top-right corner)
-5. Click "Load unpacked" and select the `dist` directory created by the build script
-6. The extension is now installed and ready to use
+2. Navigate to the `csv` directory: `cd csv`
+3. Run the build script: `build.bat`
+4. Open Chrome and navigate to `chrome://extensions/`
+5. Enable "Developer mode" (toggle in the top-right corner)
+6. Click "Load unpacked" and select the `dist` directory created by the build script
+7. The extension is now installed and ready to use
 
 ## Usage
 1. Navigate to any GenSpark page containing a data table (URL must include "https://www.genspark.ai/agents?")
@@ -55,23 +56,47 @@ This extension is built using:
 - xlsx-populate for Excel file generation
 
 ## Project Structure
+
+This repository is organized into two main directories:
+
+### CSV Export Chrome Extension (`csv/` directory)
 - `src/`: Source code
-  - `manifest.json`: Extension configuration
-  - `content.js`: Content script that runs on GenSpark pages
-  - `background.js`: Background script for the extension
-  - `icons/`: Extension icons
+    - `extensions/`: Extension-related code
+        - `manifest.json`: Extension configuration
+        - `content.js`: Content script that runs on GenSpark pages
+        - `background.js`: Background script for the extension
+        - `icons/`: Extension icons
 - `build.bat`: Build script to package the extension
 - `build.js`: Node.js build script
 - `webpack.config.js`: Webpack configuration
 - `dist/`: Output directory for the built extension (created by build script)
 
+### HTML to Figma Tests (`html/` directory)
+
+- `html-to-figma/`: HTML to Figma library
+- `src/`: Source code
+    - `figma/`: Figma-related code
+        - `test/`: Test scripts for HTML to Figma conversion
+
 ## Build Process
-1. Install dependencies: `npm install`
-2. Run the build script: `npm run build`
+
+### CSV Export Chrome Extension
+
+1. Navigate to the `csv` directory: `cd csv`
+2. Install dependencies: `npm install`
+3. Run the build script: `npm run build` or `build.bat`
    - This will run webpack to bundle the JavaScript files with dependencies
    - Then it will copy the manifest.json and icons to the dist directory
-3. The extension files will be in the `dist` directory
-4. Load the extension in Chrome as described in the Installation section
+4. The extension files will be in the `dist` directory
+5. Load the extension in Chrome as described in the Installation section
+
+### HTML to Figma Tests
+
+1. Navigate to the `html` directory: `cd html`
+2. Install dependencies: `npm install`
+3. Run the tests: `npm test` or `npm run test:all`
+    - `npm test` runs the enhanced HTML to Figma test
+    - `npm run test:all` runs all the test scripts
 
 ## License
 See the LICENSE file for details.
