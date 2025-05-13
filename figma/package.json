@@ -1,0 +1,33 @@
+{
+  "name": "html-to-figma-plugin",
+  "version": "1.0.0",
+  "description": "Figma plugin to convert HTML to Figma designs",
+  "main": "code.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack --mode=development --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "figma",
+    "figma-plugin",
+    "html",
+    "conversion"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.68.0",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "html-to-figma-lib": "file:../html/html-to-figma"
+  }
+}
