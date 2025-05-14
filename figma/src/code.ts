@@ -89,22 +89,10 @@ async function convertHtmlToFigma(html: string): Promise<SceneNode[]> {
     }
 
     try {
-      // Create a temporary DOM element to hold the HTML
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-
-      // Check if parsing was successful
-      const parseError = doc.querySelector('parsererror');
-      if (parseError) {
-        throw new Error('Invalid HTML: ' + parseError.textContent);
-      }
-
-      const element = doc.body;
-
-      // Convert HTML to Figma nodes using the html-to-figma library
-      // The library expects an HTMLElement or selector string as the first parameter
-      // and a boolean for useAutoLayout as the second parameter
-      const result = await htmlToFigma(element, true);
+      // Since we can't use DOMParser directly in the plugin code,
+      // we'll pass the HTML string directly to the htmlToFigma function
+      // The library should handle parsing the HTML internally
+      const result = await htmlToFigma(html, true);
 
       // Load any fonts used in the HTML
       await loadFonts(result);
@@ -358,13 +346,12 @@ async function fetchImageData(url: string): Promise<Uint8Array | null> {
       // Generate a unique ID for this request
       const requestId = 'img_' + Date.now();
 
-      // Set up a listener for the response
-      const messageListener = (event: MessageEvent) => {
-        const message = event.data.pluginMessage;
+      // Set up a message handler for the response
+      const messageHandler = (message: any) => {
         if (!message || message.requestId !== requestId) return;
 
-        // Remove the listener once we get the response
-        window.removeEventListener('message', messageListener);
+        // Remove the handler once we get the response
+        figma.ui.off('message', messageHandler);
 
         if (message.success) {
           resolve(message.data);
@@ -373,7 +360,8 @@ async function fetchImageData(url: string): Promise<Uint8Array | null> {
         }
       };
 
-      window.addEventListener('message', messageListener);
+      // Listen for messages from the UI
+      figma.ui.on('message', messageHandler);
 
       // Send the request to the UI
       figma.ui.postMessage({
@@ -384,7 +372,7 @@ async function fetchImageData(url: string): Promise<Uint8Array | null> {
 
       // Set a timeout to reject the promise if no response is received
       setTimeout(() => {
-        window.removeEventListener('message', messageListener);
+        figma.ui.off('message', messageHandler);
         reject(new Error('Timeout fetching image data'));
       }, 10000); // 10 second timeout
     });

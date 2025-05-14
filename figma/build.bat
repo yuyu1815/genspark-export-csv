@@ -1,6 +1,12 @@
 @echo off
 echo Building HTML to Figma plugin...
 
+echo Building html-to-figma-lib dependency...
+cd ..\html\html-to-figma
+npm install
+npm run build:package
+cd ..\..\figma
+
 echo Installing dependencies...
 npm install
 
