@@ -2,7 +2,7 @@
 
 ## バージョン情報
 
-**バージョン 1.1.0** - 最新版
+**バージョン 1.2.0** - 最新版
 
 ### リリースノート
 
@@ -67,8 +67,8 @@ GenSpark Exportはシンプルで直感的に設計されており、データ�
 
 1. このリポジトリをローカルマシンにクローンします。
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
-   cd YOUR_REPOSITORY_NAME
+   git clone https://github.com/yuyu1815/GenSpark-Export.git
+   cd GenSpark-Export
    ```
 2. npmを使用して必要な依存関係をインストールします。
    ```bash
