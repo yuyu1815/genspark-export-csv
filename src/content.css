@@ -23,9 +23,10 @@
 }
 
 .button.genspark-export-csv-button,
-.button.genspark-export-excel-button {
+.button.genspark-export-excel-button,
+.button.genspark-export-md-button {
     align-items: center;
-    background-color: #fff;
+    background-color: #f5f5f5;
     border: 1px solid #eaeaea;
     border-radius: 16px;
     color: #000;
@@ -48,4 +49,8 @@
 
 .button.genspark-export-excel-button {
     background-color: #e6f7e6;
+}
+
+.button.genspark-export-md-button {
+    background-color: #e6f0f7;
 }
