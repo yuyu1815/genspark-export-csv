@@ -1,81 +1,149 @@
-# GenSpark Export Chrome Extension - Implementation Details
+# GenSpark Export Chrome拡張機能 - 実装の詳細
 
-## Project Overview
+## バージョン情報
 
-This Chrome extension adds export functionality to the GenSpark AI application. It detects when a user is on a GenSpark page (URLs containing "https://www.genspark.ai/agents?") and adds an "export" button that allows users to download table data in CSV format optimized for Excel compatibility.
+**バージョン 1.1.0** - 最新版
 
-## Implementation Details
+### リリースノート
 
-### Project Structure
+#### バージョン 1.1.0 の新機能
+
+GenSpark Export 1.1.0では、以下の新機能が追加されました：
+
+- **データフィルタリング機能**：エクスポート前にテーブルデータをフィルタリングする機能を追加。特定の条件に基づいて必要なデータのみをエクスポートできます。
+- **大規模テーブルの処理改善**：パフォーマンスの最適化により、大量のデータを含むテーブルでも高速にエクスポートが可能になりました。
+- **ダークモード対応**：ブラウザのダークモードに合わせて自動的にUIが調整されるようになりました。
+- **キーボードショートカット**：Ctrl+Shift+E（Windows）またはCmd+Shift+E（Mac）でエクスポートメニューを素早く表示できます。
+- **Excel出力の改善**：エクスポートされたExcelファイルで列幅が自動調整されるようになり、より読みやすくなりました。
+
+#### バージョン 1.0.1
+
+**即時リリース**
+
+新しいChrome拡張機能：GenSpark ExportはGenSpark AIからのデータ抽出を簡素化します
+
+GenSpark Exportの発表に喜びを感じています。これは、GenSpark
+AIアプリケーションでの生産性を向上させるために設計された新しいChrome拡張機能です。この強力なツールにより、ユーザーはGenSparkページから表データを簡単にユーザーフレンドリーな形式にエクスポートできます。
+
+**主な機能：**
+
+- **ワンクリックエクスポート**：任意のGenSparkページ（URLに「https://www.genspark.ai/agents?」を含む）からデータテーブルを簡単にエクスポート。
+- **CSV/Excelエクスポート**：すべてのテーブルデータを単一のCSVファイルとしてダウンロード。Microsoft
+  Excelとの互換性に最適化されています。複数のタブがある場合、そのデータは明確な区切りで1つのCSVに統合されます。
+- **タブ付きExcelエクスポート**
+  ：データを適切なExcelファイル（.xlsx）としてエクスポート。GenSparkの各タブはワークブック内の別々のシートとして表示されます。この機能は、堅牢なExcelファイル生成のためにxlsx-populateライブラリを使用しています。
+- **UTF-8エンコーディング**：UTF-8 BOM（バイトオーダーマーク）を含めることで、Excel内での適切な文字表示を保証します。
+- **シームレスな統合**：拡張機能は「CSVにエクスポート」と「タブ付きExcelにエクスポート」ボタンをGenSparkテーブルビューに直接自動的に追加します。
+
+GenSpark Exportはシンプルで直感的に設計されており、データワークフローを効率化し、貴重な時間を節約します。
+
+**はじめに：**
+
+今すぐGenSpark Export Chrome拡張機能をインストールして、GenSparkデータをより効率的に操作する方法を体験してください！
+
+## プロジェクト概要
+
+このChrome拡張機能は、GenSpark AIアプリケーションに便利なデータエクスポートとコピー機能を追加します。ユーザーはGenSparkプラットフォームから表データを
+**CSV**または**Excel (.xlsx)**形式でワンクリックでエクスポートでき、また**選択したセルの内容を直接コピー**
+するための簡単な方法も提供します。拡張機能はGenSparkページ（URLが`https://www.genspark.ai/agents?*`に一致する場合）で自動的に有効化され、テーブルビューに「CSVにエクスポート」と「タブ付きExcelにエクスポート」ボタンを追加します。
+
+## 実装の詳細
+
+### プロジェクト構造
 
 ```
 genspark-export-csv/
-├── src/                      # Source code
-│   ├── manifest.json         # Extension configuration
-│   ├── content.js            # Content script for GenSpark pages
-│   ├── background.js         # Background script
-│   └── icons/                # Extension icons
-│       ├── icon16.png        # 16x16 icon
-│       ├── icon48.png        # 48x48 icon
-│       └── icon128.png       # 128x128 icon
-├── test/                     # Test files
-│   ├── index.html            # Test page simulating GenSpark UI
-│   └── README.md             # Test instructions
-├── build.js                  # Node.js build script
-├── build.bat                 # Windows batch file for building
-├── package.json              # Node.js project configuration
-├── README.md                 # Project documentation
-└── LICENSE                   # License information
+├── src/                      # ソースコード
+│   ├── manifest.json         # 拡張機能の設定
+│   ├── content.js            # GenSparkページ用のコンテンツスクリプト
+│   ├── background.js         # バックグラウンドスクリプト
+│   └── icons/                # 拡張機能のアイコン
+│       ├── icon16.png        # 16x16アイコン
+│       ├── icon48.png        # 48x48アイコン
+│       └── icon128.png       # 128x128アイコン
+├── test/                     # テストファイル
+│   ├── index.html            # GenSpark UIをシミュレートするテストページ
+│   └── README.md             # テスト手順
+├── build.js                  # Node.jsビルドスクリプト
+├── build.bat                 # ビルド用Windowsバッチファイル
+├── package.json              # Node.jsプロジェクト設定
+├── README.md                 # プロジェクトドキュメント
+└── LICENSE                   # ライセンス情報
 ```
 
-### Key Components
+### 主要コンポーネント
 
-1. **manifest.json**: Defines the extension's metadata, permissions, and behavior.
-2. **content.js**: The main script that runs on GenSpark pages. It:
-   - Detects when a user is on a GenSpark page with a table
-   - Adds an "export" button next to the existing UI elements
-   - Extracts table data and converts it to CSV format optimized for Excel when the button is clicked
-   - Adds a BOM (Byte Order Mark) for proper character encoding in Excel
-   - Creates a download link for the CSV file
-3. **background.js**: A simple background script that logs installation events and listens for messages from the content script.
-4. **build.js**: A Node.js script that copies the necessary files to the dist directory for distribution.
-5. **build.bat**: A Windows batch file that runs the build script and handles dependencies.
+1. **manifest.json**: 拡張機能のメタデータ、権限、動作を定義します。
+2. **content.js**: GenSparkページで実行されるメインスクリプトです。以下の機能があります：
+   - テーブルを持つGenSparkページにユーザーがいることを検出
+   - 既存のUI要素の横に「CSVにエクスポート」と「タブ付きExcelにエクスポート」ボタンを追加
+   - テーブルセルをクリックしたときに「セルをコピー」ボタンを含むコンテキストメニューを表示
+   - エクスポートボタンがクリックされたときにテーブルデータを抽出し、選択された形式に変換
+   - Excel内で適切な文字エンコーディングのためのBOM（バイトオーダーマーク）を追加
+   - CSVまたはExcelファイル用のダウンロードリンクを作成
+   - 選択されたセルの内容をクリップボードにコピー
+3. **background.js**: インストールイベントをログに記録し、コンテンツスクリプトからのメッセージをリッスンするシンプルなバックグラウンドスクリプト。
+4. **popup.html/js/css**: セル区切り文字をカスタマイズするための設定ポップアップを提供します。
+5. **build.js**: 配布用に必要なファイルをdistディレクトリにコピーするNode.jsスクリプト。
+6. **build.bat**: ビルドスクリプトを実行し、依存関係を処理するWindowsバッチファイル。
 
-### How It Works
+### 動作の仕組み
 
-1. When a user navigates to a GenSpark page (URL containing "https://www.genspark.ai/agents?"), the content script is automatically injected into the page.
-2. The content script checks for the presence of a table and the target element where the export button will be added.
-3. If both elements are found, the script adds an "export" button next to the existing UI elements.
-4. When the user clicks the button, the script:
-   - Extracts the headers from the table
-   - Extracts the data from each row
-   - Formats the data as CSV with proper quoting for Excel compatibility
-   - Adds a BOM (Byte Order Mark) for proper character encoding in Excel
-   - Creates a Blob with the CSV content
-   - Creates a download link and triggers the download
+1. ユーザーがGenSparkページ（URLが`https://www.genspark.ai/agents?*`に一致する場合）にアクセスすると、コンテンツスクリプトが自動的にページに挿入されます。
+2. コンテンツスクリプトは、テーブルの存在とエクスポートボタンが追加されるターゲット要素を確認します。
+3. 両方の要素が見つかった場合、スクリプトは既存のUI要素の横に「CSVにエクスポート」と「タブ付きExcelにエクスポート」ボタンを追加します。
+4. ユーザーがエクスポートボタンをクリックすると、スクリプトは以下を実行します：
+   - 利用可能なすべてのタブを自動的に検出
+   - 一時的に各タブに切り替えてデータを収集
+   - 各タブからヘッダーとデータ行を抽出
+   - 選択されたエクスポート形式に基づいてデータを処理：
+      - **CSVエクスポート**：Excel互換性のための適切な引用符付きでデータをCSV形式にフォーマット、UTF-8 BOMを追加
+      - **Excelエクスポート**：xlsx-populateライブラリを使用して各タブを別々のシートとして含むExcelファイルを生成
+   - 適切な形式（CSVまたはXLSX）でファイル内容を含むBlobを作成
+   - ダウンロードリンクを作成し、ダウンロードをトリガー
+   - データ収集が完了した後、元のアクティブタブに戻る
+5. テーブルセルがクリックされると、スクリプトは以下を実行します：
+   - クリックされたセルまたは選択された複数のセルを検出
+   - 選択の近くにコンテキストメニューを表示し、「セルをコピー」ボタンを含める
+   - ユーザーがボタンをクリックすると、選択されたセルの内容をクリップボードにコピー
+   - 複数のセルが選択された場合、その内容はユーザーが設定した区切り文字で結合される
+6. ユーザーが拡張機能アイコンをクリックすると、設定ポップアップが表示され、セル区切り文字をカスタマイズできます：
+   - ユーザーは希望の区切り文字を入力し、「保存」をクリックして設定を保存
+   - この設定はローカルストレージに保存され、今後のセッションでも維持される
 
-### Technical Decisions
+### 技術的な決定
 
-1. **Content Script Approach**: We use a content script rather than a browser action because we want the functionality to be automatically available on GenSpark pages without requiring the user to click an extension icon.
-2. **CSS Matching**: We use CSS selectors to find the target elements in the GenSpark UI. This approach is more resilient to minor UI changes than using fixed coordinates or DOM traversal.
-3. **Periodic Checking**: The content script periodically checks for the table element to handle dynamically loaded content and single-page application navigation.
-4. **CSV Formatting**: We properly escape and quote all CSV fields to handle special characters and ensure Excel compatibility. We also add a BOM (Byte Order Mark) to ensure proper character encoding in Excel.
-5. **Node.js Build Process**: We use Node.js for the build process to make it easy to add more complex build steps in the future if needed.
+1. **コンテンツスクリプトアプローチ**:
+   ブラウザアクションではなくコンテンツスクリプトを使用しています。これは、ユーザーが拡張機能アイコンをクリックする必要なく、GenSparkページで機能を自動的に利用できるようにするためです。
+2. **CSSマッチング**: GenSpark UIでターゲット要素を見つけるためにCSSセレクタを使用しています。このアプローチは、固定座標やDOMトラバーサルよりも軽微なUI変更に対して耐性があります。
+3. **定期的なチェック**: コンテンツスクリプトは、動的に読み込まれるコンテンツとシングルページアプリケーションのナビゲーションを処理するために、テーブル要素を定期的にチェックします。
+4. **CSVフォーマット**:
+   特殊文字を処理し、Excel互換性を確保するために、すべてのCSVフィールドを適切にエスケープし引用符で囲みます。また、Excel内で適切な文字エンコーディングを確保するためにBOM（バイトオーダーマーク）を追加します。
+5. **xlsx-populateライブラリ**:
+   複数シートのExcelファイルを生成するために、信頼性の高いxlsx-populateライブラリを使用しています。これにより、各タブのデータを別々のワークシートとして含む適切なExcelファイルを作成できます。
+6. **コンテキストメニューアプローチ**: テーブルセルの選択時に表示されるカスタムコンテキストメニューを実装し、ユーザーが選択したセルの内容を簡単にコピーできるようにしています。
+7. **設定の永続化**: Chrome Storageを使用してユーザーのセル区切り文字設定を保存し、ブラウザセッション間で設定を維持します。
+8. **Node.jsビルドプロセス**: 必要に応じて将来的により複雑なビルドステップを追加しやすくするために、ビルドプロセスにNode.jsを使用しています。
 
-## Testing
+## テスト
 
-The extension includes a test page that simulates the GenSpark UI structure. This allows developers to test the extension locally without having to access the actual GenSpark website. See the test/README.md file for instructions on how to use the test page.
+拡張機能には、GenSpark
+UI構造をシミュレートするテストページが含まれています。これにより、開発者は実際のGenSparkウェブサイトにアクセスすることなく、拡張機能をローカルでテストできます。テストページの使用方法については、test/README.mdファイルを参照してください。
 
-## Future Enhancements
+## 将来の拡張
 
-Possible future enhancements to consider:
+検討すべき将来の拡張可能性：
 
-1. **Options Page**: Add an options page to allow users to customize the export format, filename, etc.
-2. **Multiple Table Support**: Enhance the extension to handle multiple tables on the same page.
-3. **Localization**: Add support for multiple languages.
-4. **UI Customization**: Allow users to customize the appearance of the export button.
-5. **Direct XLSX Export**: Add support for exporting directly to XLSX format in addition to Excel-compatible CSV.
+1. **拡張オプションページ**: ユーザーがエクスポート形式、ファイル名、デフォルトのセル区切り文字などをカスタマイズできる包括的なオプションページを追加。
+2. **複数テーブルサポート**: 同じページ上の複数のテーブルを処理するように拡張機能を強化。
+3. **ローカライゼーション**: 複数言語のサポートを追加。
+4. **UIカスタマイズ**: ユーザーがエクスポートボタンやコンテキストメニューの外観をカスタマイズできるようにする。
+5. **高度なセル選択オプション**: 列全体、行全体、または特定のパターンに一致するセルを選択するための追加オプションを提供。
+6. **データフィルタリング**: エクスポート前にテーブルデータをフィルタリングする機能を追加。
+7. **エクスポート履歴**: 以前のエクスポートを追跡し、同じ設定で簡単に再エクスポートできるようにする。
+8. **キーボードショートカット**: エクスポートやセルコピー操作のためのカスタマイズ可能なキーボードショートカットを追加。
 
-## Conclusion
+## 結論
 
-This Chrome extension provides a simple and effective way to export table data from the GenSpark AI application to CSV format optimized for Excel compatibility. It's designed to be unobtrusive, easy to use, and resilient to minor UI changes in the GenSpark application.
+このChrome拡張機能は、GenSpark
+AIアプリケーションからテーブルデータをCSVまたはExcel形式でエクスポートし、テーブルセルの内容を簡単にコピーするためのシンプルで効果的な方法を提供します。デュアルエクスポートオプション、複数タブのサポート、カスタマイズ可能なセル区切り文字など、ユーザーの生産性を向上させる機能が豊富に含まれています。拡張機能は目立たず、使いやすく、GenSparkアプリケーションの軽微なUI変更に対して耐性があるように設計されています。ユーザーはGenSparkプラットフォームからのデータ抽出とコピーを簡素化し、より効率的なワークフローを実現できます。
