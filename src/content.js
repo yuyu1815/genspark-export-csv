@@ -15,12 +15,15 @@ const XlsxPopulate = require('xlsx-populate');
         buttonClass: 'genspark-export-csv-button',
         excelButtonText: 'Excel with Tabs',
         excelButtonClass: 'genspark-export-excel-button',
+        mdButtonText: 'Markdown',
+        mdButtonClass: 'genspark-export-md-button',
         targetSelector: '.present-and-export, .flex.flex-row.items-center.ml-\\[16px\\].flex-shrink-0', // The element where we'll add our button
         tableSelector: '.dataset-table-container table', // The table we want to export
         tabSelector: '.sheets-bar-item', // Selector for tabs
         activeTabClass: 'active', // Class for the active tab
         fileName: 'genspark_export.csv',
         excelFileName: 'genspark_export.xlsx',
+        mdFileName: 'genspark_export.md',
         selectionMenuSelector: '.selection-operation-menu', // Selector for the selection menu
         copyButtonText: 'セルをコピー', // Text for the copy button
         cellSeparator: ' ', // Default separator for cells when copying
@@ -118,10 +121,28 @@ const XlsxPopulate = require('xlsx-populate');
             exportAllTabsToExcel(tableElement);
         });
 
+        // Create the Markdown button
+        const mdButton = document.createElement('div');
+        mdButton.className = 'button ' + config.mdButtonClass;
+        mdButton.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 13.1111V15.4444C17 15.857 16.8361 16.2527 16.5444 16.5444C16.2527 16.8361 15.857 17 15.4444 17H4.55556C4.143 17 3.74733 16.8361 3.45561 16.5444C3.16389 16.2527 3 15.857 3 15.4444V4.55556C3 4.143 3.16389 3.74733 3.45561 3.45561C3.74733 3.16389 4.143 3 4.55556 3H6.88889" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                <path d="M8 8L10 10L12 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M10 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <div class="present-and-export-text">${config.mdButtonText}</div>
+        `;
+
+        // Add click event listener for Markdown button
+        mdButton.addEventListener('click', function () {
+            exportAllTabsToMarkdown(tableElement);
+        });
+
         if (isAgentsPage) {
             // For agents page, add buttons directly to the div.top element
             targetElement.appendChild(csvButton);
             targetElement.appendChild(excelButton);
+            targetElement.appendChild(mdButton);
         } else {
             // For other pages, use the container approach
             // Create a container for the buttons
@@ -131,6 +152,7 @@ const XlsxPopulate = require('xlsx-populate');
             // Add the buttons to the container
             buttonsContainer.appendChild(csvButton);
             buttonsContainer.appendChild(excelButton);
+            buttonsContainer.appendChild(mdButton);
 
             // Add the container to the target element's parent
             targetElement.parentNode.appendChild(buttonsContainer);
@@ -566,6 +588,206 @@ const XlsxPopulate = require('xlsx-populate');
             // Fallback to the old CSV method if xlsx-populate fails
             alert('Error creating Excel file. Please try again or use the CSV export option.');
         }
+    }
+
+    // Function to export data from all tabs to Markdown format
+    async function exportAllTabsToMarkdown(tableElement) {
+        // Find all tabs
+        const tabs = document.querySelectorAll(config.tabSelector);
+        if (!tabs || tabs.length === 0) {
+            console.log('GenSpark Export: No tabs found');
+            // If no tabs found, just export the current table
+            exportTableToMarkdown(tableElement);
+            return;
+        }
+
+        console.log(`GenSpark Export: Found ${tabs.length} tabs for Markdown export`);
+
+        // Store data from all tabs
+        const allTabsData = [];
+
+        // Remember which tab was originally active
+        const originalActiveTab = document.querySelector(config.tabSelector + '.' + config.activeTabClass);
+        let originalActiveTabIndex = -1;
+
+        // Find the index of the original active tab
+        for (let i = 0; i < tabs.length; i++) {
+            if (tabs[i].classList.contains(config.activeTabClass)) {
+                originalActiveTabIndex = i;
+                break;
+            }
+        }
+
+        console.log(`GenSpark Export: Original active tab index: ${originalActiveTabIndex}`);
+
+        // Process each tab
+        for (let i = 0; i < tabs.length; i++) {
+            const tab = tabs[i];
+            const tabName = tab.querySelector('.sheets-bar-item-name')?.textContent.trim() || `Tab ${i + 1}`;
+
+            console.log(`GenSpark Export: Processing tab "${tabName}" (${i + 1}/${tabs.length}) for Markdown`);
+
+            // If this tab is not active, click it
+            if (!tab.classList.contains(config.activeTabClass)) {
+                console.log(`GenSpark Export: Clicking on tab "${tabName}"`);
+
+                // Use a more direct approach to trigger the click
+                try {
+                    // First attempt: Use MouseEvent
+                    tab.dispatchEvent(new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window
+                    }));
+
+                    // Wait for the table to update - longer wait time to ensure content loads
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+
+                    // Verify the tab was actually activated
+                    if (!tab.classList.contains(config.activeTabClass)) {
+                        console.log(`GenSpark Export: Tab "${tabName}" was not activated, trying direct click`);
+
+                        // Second attempt: Try a direct click as fallback
+                        tab.click();
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+
+                        // If tab is still not active, try one more time with a longer wait
+                        if (!tab.classList.contains(config.activeTabClass)) {
+                            console.log(`GenSpark Export: Tab "${tabName}" still not activated, trying one more time`);
+
+                            // Third attempt: Try clicking again with a longer wait
+                            tab.click();
+                            await new Promise(resolve => setTimeout(resolve, 3000));
+
+                            // If tab is still not active after three attempts, log an error and continue
+                            if (!tab.classList.contains(config.activeTabClass)) {
+                                console.error(`GenSpark Export: Tab "${tabName}" could not be activated after multiple attempts. Skipping this tab.`);
+                                continue; // Skip to the next tab
+                            }
+                        }
+                    }
+
+                    console.log(`GenSpark Export: Successfully activated tab "${tabName}"`);
+                } catch (error) {
+                    console.error(`GenSpark Export: Error clicking tab "${tabName}":`, error);
+                    console.log(`GenSpark Export: Skipping tab "${tabName}" due to error`);
+                    continue; // Skip to the next tab
+                }
+            }
+
+            // Get the current table
+            const currentTable = document.querySelector(config.tableSelector);
+            if (!currentTable) {
+                console.log(`GenSpark Export: No table found in tab "${tabName}"`);
+                continue;
+            }
+
+            // Extract data from this tab
+            const tabData = extractTableData(currentTable);
+            if (tabData) {
+                tabData.tabName = tabName;
+                allTabsData.push(tabData);
+                console.log(`GenSpark Export: Successfully extracted data from tab "${tabName}" for Markdown`);
+            } else {
+                console.log(`GenSpark Export: No data extracted from tab "${tabName}"`);
+            }
+        }
+
+        // Restore the original active tab
+        if (originalActiveTabIndex >= 0 && originalActiveTabIndex < tabs.length) {
+            const tabToRestore = tabs[originalActiveTabIndex];
+            if (!tabToRestore.classList.contains(config.activeTabClass)) {
+                console.log(`GenSpark Export: Restoring original active tab`);
+                tabToRestore.click();
+                // Wait for the tab to be restored
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+
+        // Create Markdown file with tab separation
+        if (allTabsData.length > 0) {
+            console.log(`GenSpark Export: Creating Markdown file with ${allTabsData.length} tabs`);
+            downloadMarkdown(allTabsData);
+        } else {
+            console.log('GenSpark Export: No data found in any tab for Markdown export');
+        }
+    }
+
+    // Function to export a single table to Markdown
+    function exportTableToMarkdown(tableElement) {
+        const tabData = extractTableData(tableElement);
+        if (!tabData) {
+            console.log('GenSpark Export: No data found in table');
+            return;
+        }
+
+        // Create Markdown content for a single table
+        const mdContent = createMarkdownTable(tabData.headers, tabData.rows);
+
+        // Download the Markdown file
+        downloadSingleMarkdown(mdContent);
+    }
+
+    // Function to create a Markdown table from headers and rows
+    function createMarkdownTable(headers, rows) {
+        // Create header row
+        let mdTable = '| ' + headers.join(' | ') + ' |\n';
+
+        // Create separator row
+        mdTable += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+
+        // Create data rows
+        rows.forEach(row => {
+            mdTable += '| ' + row.map(cell => String(cell).replace(/\|/g, '\\|')).join(' | ') + ' |\n';
+        });
+
+        return mdTable;
+    }
+
+    // Function to download a single Markdown table
+    function downloadSingleMarkdown(mdContent) {
+        // Use the triggerDownload helper function
+        triggerDownload(mdContent, config.mdFileName, 'text/markdown;charset=utf-8;');
+
+        console.log('GenSpark Export: Markdown file created successfully');
+    }
+
+    // Function to download combined Markdown tables from all tabs
+    function downloadMarkdown(allTabsData) {
+        let mdContent = '';
+
+        // Process each tab's data
+        allTabsData.forEach((tabData, index) => {
+            // Add tab name as a header
+            mdContent += `## ${tabData.tabName}\n\n`;
+
+            // Add the Markdown table
+            mdContent += createMarkdownTable(tabData.headers, tabData.rows);
+
+            // Add a blank line between tabs (except after the last tab)
+            if (index < allTabsData.length - 1) {
+                mdContent += '\n\n';
+            }
+        });
+
+        // Use the triggerDownload helper function
+        triggerDownload(mdContent, config.mdFileName, 'text/markdown;charset=utf-8;');
+
+        console.log('GenSpark Export: Markdown file with multiple tabs created successfully');
+    }
+
+    // Function to trigger a download with a blob
+    function triggerDownload(content, filename, contentType) {
+        const blob = new Blob([content], {type: contentType});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url); // Release resources
     }
 
     // Also check periodically for dynamically loaded content
