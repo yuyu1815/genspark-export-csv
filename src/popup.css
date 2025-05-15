@@ -118,3 +118,17 @@ button {
   background-color: #fce8e6;
   color: #c5221f;
 }
+
+.warning {
+    margin: 15px 0;
+    padding: 8px 10px;
+    background-color: #fff8e1;
+    border-left: 4px solid #ffb300;
+    color: #5f4120;
+    font-size: 12px;
+    border-radius: 2px;
+}
+
+.warning p {
+    margin: 0;
+}

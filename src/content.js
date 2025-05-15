@@ -23,14 +23,23 @@ const XlsxPopulate = require('xlsx-populate');
         excelFileName: 'genspark_export.xlsx',
         selectionMenuSelector: '.selection-operation-menu', // Selector for the selection menu
         copyButtonText: 'セルをコピー', // Text for the copy button
-        cellSeparator: ' ' // Default separator for cells when copying
+        cellSeparator: ' ', // Default separator for cells when copying
+        lineBreakReplacement: '' // Default replacement for line breaks (empty means no replacement)
     };
 
     // Load user preferences from storage
-    chrome.storage.sync.get({ cellSeparator: ' ' }, function(items) {
-        config.cellSeparator = items.cellSeparator;
-        console.log('GenSpark Export: Loaded cell separator from storage:', config.cellSeparator);
-    });
+    chrome.storage.sync.get(
+        {
+            cellSeparator: ' ',
+            lineBreakReplacement: ''
+        },
+        function (items) {
+            config.cellSeparator = items.cellSeparator;
+            config.lineBreakReplacement = items.lineBreakReplacement;
+            console.log('GenSpark Export: Loaded cell separator from storage:', config.cellSeparator);
+            console.log('GenSpark Export: Loaded line break replacement from storage:', config.lineBreakReplacement);
+        }
+    );
 
     // Load CSS from external file
     const link = document.createElement('link');
@@ -602,7 +611,16 @@ const XlsxPopulate = require('xlsx-populate');
                     if (!rowMap.has(row)) {
                         rowMap.set(row, []);
                     }
-                    rowMap.get(row).push(cell.textContent.trim());
+
+                    // Get the cell text content and trim it
+                    let cellText = cell.textContent.trim();
+
+                    // Replace line breaks if a replacement is configured
+                    if (config.lineBreakReplacement !== '') {
+                        cellText = cellText.replace(/\n/g, config.lineBreakReplacement);
+                    }
+
+                    rowMap.get(row).push(cellText);
                 });
 
                 // Convert the map to an array of rows
