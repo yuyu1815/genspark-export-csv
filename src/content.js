@@ -738,7 +738,7 @@ const XlsxPopulate = require('xlsx-populate');
 
         // Create data rows
         rows.forEach(row => {
-            mdTable += '| ' + row.join(' | ') + ' |\n';
+            mdTable += '| ' + row.map(cell => String(cell).replace(/\|/g, '\\|')).join(' | ') + ' |\n';
         });
 
         return mdTable;
@@ -746,20 +746,8 @@ const XlsxPopulate = require('xlsx-populate');
 
     // Function to download a single Markdown table
     function downloadSingleMarkdown(mdContent) {
-        // Create a Blob with the Markdown content
-        const blob = new Blob([mdContent], {type: 'text/markdown;charset=utf-8;'});
-        const url = URL.createObjectURL(blob);
-
-        // Create a link to download the Markdown file
-        const link = document.createElement('a');
-        link.setAttribute('href', url);
-        link.setAttribute('download', config.mdFileName);
-        link.style.display = 'none';
-
-        // Add the link to the page, click it, and remove it
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Use the triggerDownload helper function
+        triggerDownload(mdContent, config.mdFileName, 'text/markdown;charset=utf-8;');
 
         console.log('GenSpark Export: Markdown file created successfully');
     }
@@ -782,22 +770,24 @@ const XlsxPopulate = require('xlsx-populate');
             }
         });
 
-        // Create a Blob with the Markdown content
-        const blob = new Blob([mdContent], {type: 'text/markdown;charset=utf-8;'});
-        const url = URL.createObjectURL(blob);
+        // Use the triggerDownload helper function
+        triggerDownload(mdContent, config.mdFileName, 'text/markdown;charset=utf-8;');
 
-        // Create a link to download the Markdown file
+        console.log('GenSpark Export: Markdown file with multiple tabs created successfully');
+    }
+
+    // Function to trigger a download with a blob
+    function triggerDownload(content, filename, contentType) {
+        const blob = new Blob([content], {type: contentType});
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.setAttribute('href', url);
-        link.setAttribute('download', config.mdFileName);
+        link.setAttribute('download', filename);
         link.style.display = 'none';
-
-        // Add the link to the page, click it, and remove it
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        console.log('GenSpark Export: Markdown file with multiple tabs created successfully');
+        URL.revokeObjectURL(url); // Release resources
     }
 
     // Also check periodically for dynamically loaded content
