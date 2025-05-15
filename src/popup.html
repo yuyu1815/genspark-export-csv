@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GenSpark Export Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>GenSpark Export Settings</h1>
+
+    <div class="setting">
+      <label for="cellSeparator">セル区切り文字:</label>
+      <input type="text" id="cellSeparator" maxlength="5" placeholder="例: |">
+      <p class="description">コピー時のセル間の区切り文字を設定します。デフォルトは半角スペース「 」です。</p>
+    </div>
+
+      <div class="setting">
+          <label for="lineBreakReplacement">改行置き換え文字:</label>
+          <input id="lineBreakReplacement" maxlength="5" placeholder="例: \n" type="text">
+          <p class="description">セル内の改行を置き換える文字を設定します。空白の場合は置き換えません。</p>
+      </div>
+
+      <div class="examples">
+      <h2>例:</h2>
+      <div class="example">
+          <p><strong>セル区切り:</strong></p>
+        <p><strong>スペース（デフォルト）:</strong> "A B C"</p>
+        <p><strong>パイプ:</strong> "A|B|C"</p>
+        <p><strong>カンマ:</strong> "A,B,C"</p>
+        <p><strong>タブ:</strong> "A    B    C"</p>
+          <p><strong>改行置き換え:</strong></p>
+          <p><strong>カンマ+改行:</strong> "改行を,\nに置き換え"</p>
+      </div>
+    </div>
+
+      <div class="warning">
+          <p>※ 保存時にGenSparkのページが開いている場合、自動的にリロードされます。</p>
+      </div>
+
+      <div class="buttons">
+      <button id="saveButton">保存</button>
+      <button id="resetButton">リセット</button>
+    </div>
+
+      <div class="status" id="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
