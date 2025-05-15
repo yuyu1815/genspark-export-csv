@@ -20,8 +20,17 @@ const XlsxPopulate = require('xlsx-populate');
         tabSelector: '.sheets-bar-item', // Selector for tabs
         activeTabClass: 'active', // Class for the active tab
         fileName: 'genspark_export.csv',
-        excelFileName: 'genspark_export.xlsx'
+        excelFileName: 'genspark_export.xlsx',
+        selectionMenuSelector: '.selection-operation-menu', // Selector for the selection menu
+        copyButtonText: 'セルをコピー', // Text for the copy button
+        cellSeparator: ' ' // Default separator for cells when copying
     };
+
+    // Load user preferences from storage
+    chrome.storage.sync.get({ cellSeparator: ' ' }, function(items) {
+        config.cellSeparator = items.cellSeparator;
+        console.log('GenSpark Export: Loaded cell separator from storage:', config.cellSeparator);
+    });
 
     // Load CSS from external file
     const link = document.createElement('link');
@@ -552,4 +561,116 @@ const XlsxPopulate = require('xlsx-populate');
 
     // Also check periodically for dynamically loaded content
     setInterval(checkForTable, 2000);
+
+    // Function to add a copy button to the selection menu
+    function addCopyButtonToSelectionMenu(selectionMenu) {
+        // Check if the copy button already exists in this menu
+        if (selectionMenu.querySelector('.copy-cell-button')) {
+            return;
+        }
+
+        // Create the copy button
+        const copyButton = document.createElement('div');
+        copyButton.className = 'button copy-cell-button';
+        copyButton.setAttribute('data-v-555ccef1', '');
+        copyButton.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3332 6H7.33317C6.59679 6 5.99984 6.59695 5.99984 7.33333V13.3333C5.99984 14.0697 6.59679 14.6667 7.33317 14.6667H13.3332C14.0696 14.6667 14.6665 14.0697 14.6665 13.3333V7.33333C14.6665 6.59695 14.0696 6 13.3332 6Z" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"></path>
+                <path d="M3.33317 10.0003H2.6665C2.31288 10.0003 1.97374 9.85981 1.72369 9.60976C1.47365 9.35971 1.33317 9.02057 1.33317 8.66695V2.66695C1.33317 2.31333 1.47365 1.97419 1.72369 1.72414C1.97374 1.47409 2.31288 1.33362 2.6665 1.33362H8.6665C9.02012 1.33362 9.35926 1.47409 9.60931 1.72414C9.85936 1.97419 9.99984 2.31333 9.99984 2.66695V3.33362" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            ${config.copyButtonText}
+        `;
+
+        // Add click event listener for the copy button
+        copyButton.addEventListener('click', function(event) {
+            // Prevent the default action and stop event propagation
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Find all selected cells
+            const selectedCells = document.querySelectorAll('td.selected');
+            if (selectedCells && selectedCells.length > 0) {
+                // Get the text content of all selected cells
+                let cellText = '';
+
+                // Create a map to organize cells by their row
+                const rowMap = new Map();
+
+                // Group cells by their parent row
+                selectedCells.forEach(cell => {
+                    const row = cell.parentElement;
+                    if (!rowMap.has(row)) {
+                        rowMap.set(row, []);
+                    }
+                    rowMap.get(row).push(cell.textContent.trim());
+                });
+
+                // Convert the map to an array of rows
+                const rows = Array.from(rowMap.entries()).map(([_, cells]) => cells.join(config.cellSeparator));
+
+                // Join rows with newlines
+                cellText = rows.join('\n');
+
+                // Log the selection details for debugging
+                console.log(`GenSpark Export: Found ${selectedCells.length} selected cells in ${rowMap.size} rows`);
+                console.log('GenSpark Export: Formatted text to copy:', cellText);
+
+                // Copy the text to clipboard
+                navigator.clipboard.writeText(cellText)
+                    .then(() => {
+                        console.log('GenSpark Export: Cell content copied to clipboard successfully');
+
+                        // Optional: Show a brief success message
+                        copyButton.textContent = 'コピーしました!';
+                        setTimeout(() => {
+                            // Ensure the data-v-555ccef1 attribute is preserved
+                            copyButton.innerHTML = `
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13.3332 6H7.33317C6.59679 6 5.99984 6.59695 5.99984 7.33333V13.3333C5.99984 14.0697 6.59679 14.6667 7.33317 14.6667H13.3332C14.0696 14.6667 14.6665 14.0697 14.6665 13.3333V7.33333C14.6665 6.59695 14.0696 6 13.3332 6Z" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    <path d="M3.33317 10.0003H2.6665C2.31288 10.0003 1.97374 9.85981 1.72369 9.60976C1.47365 9.35971 1.33317 9.02057 1.33317 8.66695V2.66695C1.33317 2.31333 1.47365 1.97419 1.72369 1.72414C1.97374 1.47409 2.31288 1.33362 2.6665 1.33362H8.6665C9.02012 1.33362 9.35926 1.47409 9.60931 1.72414C9.85936 1.97419 9.99984 2.31333 9.99984 2.66695V3.33362" stroke="currentColor" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                                ${config.copyButtonText}
+                            `;
+                            // Ensure the data-v-555ccef1 attribute is set
+                            copyButton.setAttribute('data-v-555ccef1', '');
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('GenSpark Export: Could not copy text:', err);
+                    });
+            } else {
+                console.log('GenSpark Export: No selected cell found');
+            }
+        });
+
+        // Add the copy button to the selection menu
+        selectionMenu.appendChild(copyButton);
+    }
+
+    // Set up a mutation observer to detect when the selection menu is added to the DOM
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        // Check if the added node is the selection menu
+                        if (node.classList && node.classList.contains('selection-operation-menu')) {
+                            console.log('GenSpark Export: Selection menu detected');
+                            addCopyButtonToSelectionMenu(node);
+                        }
+
+                        // Also check for selection menu within the added node
+                        const selectionMenus = node.querySelectorAll(config.selectionMenuSelector);
+                        selectionMenus.forEach(function(menu) {
+                            console.log('GenSpark Export: Selection menu detected within added node');
+                            addCopyButtonToSelectionMenu(menu);
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    // Start observing the document body for changes
+    observer.observe(document.body, { childList: true, subtree: true });
 })();

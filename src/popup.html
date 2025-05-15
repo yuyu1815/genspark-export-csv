@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>GenSpark Export Settings</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>GenSpark Export Settings</h1>
+    
+    <div class="setting">
+      <label for="cellSeparator">セル区切り文字:</label>
+      <input type="text" id="cellSeparator" maxlength="5" placeholder="例: |">
+      <p class="description">コピー時のセル間の区切り文字を設定します。デフォルトは半角スペース「 」です。</p>
+    </div>
+    
+    <div class="examples">
+      <h2>例:</h2>
+      <div class="example">
+        <p><strong>スペース（デフォルト）:</strong> "A B C"</p>
+        <p><strong>パイプ:</strong> "A|B|C"</p>
+        <p><strong>カンマ:</strong> "A,B,C"</p>
+        <p><strong>タブ:</strong> "A    B    C"</p>
+      </div>
+    </div>
+    
+    <div class="buttons">
+      <button id="saveButton">保存</button>
+      <button id="resetButton">リセット</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

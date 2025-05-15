@@ -16,7 +16,10 @@ const config = {
         'icons/icon16.png',
         'icons/icon48.png',
         'icons/icon128.png',
-        'content.css'
+        'content.css',
+        'popup.html',
+        'popup.css',
+        'popup.js'
     ]
 };
 

@@ -10,7 +10,8 @@
   },
   "permissions": [
     "activeTab",
-    "downloads"
+    "downloads",
+    "storage"
   ],
   "content_scripts": [
     {
@@ -27,7 +28,8 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "GenSpark Export"
+    "default_title": "GenSpark Export",
+    "default_popup": "popup.html"
   },
   "web_accessible_resources": [
     {
