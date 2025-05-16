@@ -16,11 +16,16 @@
   "content_scripts": [
     {
       "matches": ["*://www.genspark.ai/agents?*", "*://genspark.genspark.site/sheets*"],
-      "js": ["content.js"]
+      "js": [
+        "content/index.js"
+      ],
+      "css": [
+        "content/index.css"
+      ]
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background/index.js"
   },
   "action": {
     "default_icon": {
@@ -29,12 +34,12 @@
       "128": "icons/icon128.png"
     },
     "default_title": "GenSpark Export",
-    "default_popup": "popup.html"
+    "default_popup": "popup/index.html"
   },
   "web_accessible_resources": [
     {
       "resources": [
-        "content.css"
+        "content/index.css"
       ],
       "matches": [
         "*://www.genspark.ai/*",
