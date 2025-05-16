@@ -16,7 +16,7 @@
     {
       "matches": ["*://www.genspark.ai/agents?*", "*://genspark.genspark.site/sheets*"],
       "js": [
-        "content/index.js"
+        "content.js"
       ],
       "css": [
         "content/index.css"
@@ -24,7 +24,7 @@
     }
   ],
   "background": {
-    "service_worker": "background/index.js"
+    "service_worker": "background.js"
   },
   "action": {
     "default_icon": {

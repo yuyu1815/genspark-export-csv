@@ -19,16 +19,17 @@ const config = {
         'content/index.css',
         'popup/index.html',
         'popup/index.css',
-        'popup/index.js',
-        'background/index.js',
-        'content/index.js',
-        'content/ui.js',
-        'content/utils/tableUtils.js',
-        'content/export/csvExport.js',
-        'content/export/excelExport.js',
-        'content/export/markdownExport.js',
-        'content/copy/cellCopy.js',
-        'common/config.js'
+        'popup/index.js'
+        // Files below are now bundled by webpack and should not be copied directly
+        // 'background/index.js',
+        // 'content/index.js',
+        // 'content/ui.js',
+        // 'content/utils/tableUtils.js',
+        // 'content/export/csvExport.js',
+        // 'content/export/excelExport.js',
+        // 'content/export/markdownExport.js',
+        // 'content/copy/cellCopy.js',
+        // 'common/config.js'
     ]
 };
 

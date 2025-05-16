@@ -1,25 +1,71 @@
 /* GenSpark Export - Content Styles */
 
 /* Button styles */
-.genspark-export-csv-button,
-.genspark-export-excel-button,
-.genspark-export-md-button {
-    margin-left: 8px;
+.present-and-export[data-v-1803aa4e] {
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #eaeaea;
+    border-radius: 16px;
     cursor: pointer;
     display: flex;
-    align-items: center;
-    color: #1a73e8;
+    flex-shrink: 0;
+    gap: 4px;
+    height: 32px;
+    justify-content: center;
+    margin-left: 16px;
+    padding: 0 16px;
+    transition: all .3s ease;
+    width: -moz-fit-content;
+    width: fit-content;
 }
 
-.genspark-export-csv-button:hover,
-.genspark-export-excel-button:hover,
-.genspark-export-md-button:hover {
-    color: #174ea6;
+.present-and-export[data-v-1803aa4e]:hover {
+    opacity: 0.8;
 }
 
 .genspark-buttons-container {
     display: flex;
-    margin-left: 8px;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.button.genspark-export-csv-button,
+.button.genspark-export-excel-button,
+.button.genspark-export-md-button {
+    align-items: center;
+    background-color: #f5f5f5;
+    border: 1px solid #eaeaea;
+    border-radius: 16px;
+    color: #000;
+    cursor: pointer;
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    height: 32px;
+    justify-content: center;
+    margin-left: 16px;
+    padding: 0 16px;
+    transition: all .3s ease;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+.button.genspark-export-csv-button:hover,
+.button.genspark-export-excel-button:hover,
+.button.genspark-export-md-button:hover {
+    opacity: 0.8;
+}
+
+.present-and-export-text {
+    color: #000;
+}
+
+.button.genspark-export-excel-button {
+    background-color: #e6f7e6;
+}
+
+.button.genspark-export-md-button {
+    background-color: #e6f0f7;
 }
 
 /* Copy button styles */
