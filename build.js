@@ -16,10 +16,19 @@ const config = {
         'icons/icon16.png',
         'icons/icon48.png',
         'icons/icon128.png',
-        'content.css',
-        'popup.html',
-        'popup.css',
-        'popup.js'
+        'content/index.css',
+        'popup/index.html',
+        'popup/index.css',
+        'popup/index.js',
+        'background/index.js',
+        'content/index.js',
+        'content/ui.js',
+        'content/utils/tableUtils.js',
+        'content/export/csvExport.js',
+        'content/export/excelExport.js',
+        'content/export/markdownExport.js',
+        'content/copy/cellCopy.js',
+        'common/config.js'
     ]
 };
 

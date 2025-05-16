@@ -4,8 +4,8 @@ const webpack = require('webpack');
 module.exports = {
   mode: 'production',
   entry: {
-    content: './src/content.js',
-    background: './src/background.js'
+      content: './src/content/index.js',
+      background: './src/background/index.js'
   },
   output: {
     filename: '[name].js',

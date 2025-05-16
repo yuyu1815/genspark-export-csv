@@ -135,12 +135,26 @@ GenSpark Exportはシンプルで直感的に設計されており、データ�
 
 - `src/`：ソースコード
     - `manifest.json`：拡張機能の設定
-    - `content.js`：GenSparkページで実行されるコンテンツスクリプト
-    - `background.js`：拡張機能のバックグラウンドスクリプト
-    - `popup.html`：設定ポップアップのHTML
-    - `popup.css`：設定ポップアップのスタイル
-    - `popup.js`：設定ポップアップのJavaScript
-    - `content.css`：コンテンツスクリプトのスタイル
+  - `background/`：バックグラウンドスクリプト
+      - `index.js`：バックグラウンドスクリプトのエントリーポイント
+  - `common/`：共通コード
+      - `config.js`：拡張機能の設定
+  - `content/`：コンテンツスクリプト
+      - `index.js`：コンテンツスクリプトのエントリーポイント
+      - `index.css`：コンテンツスクリプトのスタイル
+      - `ui.js`：ユーザーインターフェース機能
+      - `copy/`：セルコピー機能
+          - `cellCopy.js`：セルコピー機能
+      - `export/`：エクスポート機能
+          - `csvExport.js`：CSVエクスポート機能
+          - `excelExport.js`：Excelエクスポート機能
+          - `markdownExport.js`：Markdownエクスポート機能
+      - `utils/`：ユーティリティ関数
+          - `tableUtils.js`：テーブル操作ユーティリティ
+  - `popup/`：設定ポップアップ
+      - `index.html`：設定ポップアップのHTML
+      - `index.css`：設定ポップアップのスタイル
+      - `index.js`：設定ポップアップのJavaScript
     - `icons/`：拡張機能のアイコン
 - `build.bat`：拡張機能をパッケージ化するビルドスクリプト
 - `build.js`：Node.jsビルドスクリプト

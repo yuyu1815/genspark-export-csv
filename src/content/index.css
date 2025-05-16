@@ -1,0 +1,42 @@
+/* GenSpark Export - Content Styles */
+
+/* Button styles */
+.genspark-export-csv-button,
+.genspark-export-excel-button,
+.genspark-export-md-button {
+    margin-left: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    color: #1a73e8;
+}
+
+.genspark-export-csv-button:hover,
+.genspark-export-excel-button:hover,
+.genspark-export-md-button:hover {
+    color: #174ea6;
+}
+
+.genspark-buttons-container {
+    display: flex;
+    margin-left: 8px;
+}
+
+/* Copy button styles */
+.copy-cell-button {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: #1a73e8;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+.copy-cell-button:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+.copy-cell-button svg {
+    margin-right: 4px;
+}
