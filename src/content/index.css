@@ -68,6 +68,34 @@
     background-color: #e6f0f7;
 }
 
+/* Button styles for data-v-555ccef1 */
+.button[data-v-555ccef1] {
+    align-items: center;
+    background: #232425;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    box-sizing: border-box;
+    color: #fff;
+    display: flex;
+    flex-direction: row;
+    font-family: Inter;
+    font-size: 12px;
+    font-weight: 400;
+    gap: 8px;
+    height: 34px;
+    justify-content: center;
+    letter-spacing: 0;
+    line-height: 20px;
+    text-align: center;
+    vertical-align: middle;
+    width: 142px;
+    transition: all .3s ease;
+}
+
+.button[data-v-555ccef1]:hover {
+    opacity: 0.9;
+}
+
 /* Copy button styles */
 .copy-cell-button {
     display: flex;
@@ -77,10 +105,6 @@
     color: #1a73e8;
     border-radius: 4px;
     margin-top: 4px;
-}
-
-.copy-cell-button:hover {
-    background-color: rgba(26, 115, 232, 0.1);
 }
 
 .copy-cell-button svg {
