@@ -1,0 +1,279 @@
+name: junie
+
+on:
+  workflow_call:
+    secrets:
+      GCP_DOCKER_JUNIE_KEY:
+        required: false
+    inputs:
+      fix_conflicts:
+        description: "temporary params, not using in workflow"
+        type: boolean
+        required: false
+      fix_checks:
+        description: "temporary params, not using in workflow"
+        type: boolean
+        required: false
+      skip_workflow_file_validation:
+        description: "temporary params, not using in workflow"
+        type: boolean
+        required: false
+      workflow_params:
+        description: "JSON string containing all workflow parameters"
+        type: string
+        required: true
+      runs-on:
+        description: "Which runner use to run junie"
+        type: string
+        default: "ubuntu-latest"
+        required: false
+
+jobs:
+  run-junie:
+    runs-on: ${{ inputs.runs-on }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Extract workflow params
+        id: workflow-params
+        uses: actions/github-script@v7
+        env:
+          INPUT_PARAMS: ${{ inputs.workflow_params }}
+        with:
+          script: |
+            const params = JSON.parse(core.getInput('params'));
+            // for now we always use this default params for idea, junie_plugin and junie_runner versions
+            const defaultParams = {
+              idea_version: '2025.1',
+              junie_plugin_download_url: 'https://github.com/jetbrains-junie/artifacts/releases/download/166.1-cloud-eap/ej-cloud-eap-251.166.1.zip',
+              junie_runner_download_url: 'https://github.com/jetbrains-junie/artifacts/releases/download/142.1/junie-runner-142.1.jar'
+            }
+            const finalParams = { ...defaultParams, ...params, project_stack: 'jvm'  };
+            Object.keys(finalParams).forEach((key) => {
+                core.setOutput(key, finalParams[key]);
+            });         
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.workflow-params.outputs.checkout_ref }}
+
+      - name: Init git configuration
+        run: |
+          git config --global user.name 'junie-eap[bot]'
+          git config --global user.email 'junie-eap[bot]@users.noreply.github.com'
+
+      - name: Make all scripts in .devcontainer executable
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') != '')
+        run: find .devcontainer -type f -name "*.sh" -exec chmod +x {} \;
+
+      - name: Prepare container and run Junie
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') != '')
+        uses: devcontainers/ci@v0.3
+        timeout-minutes: 50
+        env:
+          PROJECT_STACK: ${{ steps.workflow-params.outputs.project_stack }}
+          ISSUE_TITLE: ${{ steps.workflow-params.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.workflow-params.outputs.issue_body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IDEA_VERSION: ${{ steps.workflow-params.outputs.idea_version }}
+          JUNIE_DOWNLOAD_URL: ${{ steps.workflow-params.outputs.junie_plugin_download_url }}
+          MATTERHORN_DEBUG_LOG: true
+          MULTI_RUNS: false
+        with:
+          imageName: project-devcontainer
+          push: never
+          env: |          
+            PROJECT_STACK
+            ISSUE_TITLE
+            ISSUE_BODY
+            GITHUB_TOKEN
+            MATTERHORN_DEBUG_LOG
+            JUNIE_DOWNLOAD_URL
+            MULTI_RUNS
+          runCmd: |
+            echo "Downloading ej-runner"
+            wget -nv "${{ steps.workflow-params.outputs.junie_runner_download_url }}" -O junie-runner.jar
+
+            # Check if JAVA_HOME is set
+            if [ -z "$JAVA_HOME" ]; then
+              echo "JAVA_HOME is not set."
+              # Check if java is available in PATH
+              if ! command -v java >/dev/null 2>&1; then
+                echo "Java is not available in PATH. Proceeding with installation..."
+                # Install OpenJDK 17 JRE
+                sudo apt-get -qq update >/dev/null
+                sudo apt-get -qq install -y openjdk-17-jre >/dev/null
+                echo "OpenJDK 17 JRE installed successfully."
+              else
+                echo "Java is available in PATH. No need to install."
+              fi
+            else
+              echo "JAVA_HOME is set to '$JAVA_HOME'. No need to install."
+            fi
+
+            echo "Running ej-runner"
+            if [ -z "$JAVA_HOME" ]; then
+              java -version
+              java -jar junie-runner.jar
+            else
+              "$JAVA_HOME/bin/java" -version
+              "$JAVA_HOME/bin/java" -jar junie-runner.jar
+            fi
+            
+
+      - name: Extracting .idea and ej-logs from container
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') != '')
+        run: |          
+          WORKSPACE_FOLDER=$(devcontainer read-configuration --workspace-folder . | jq -r '.workspaceFolder // "/workspaces/stub"')
+
+          CONTAINER_ID=$(docker ps -q)
+          
+          echo "WORKSPACE=$WORKSPACE_FOLDER"
+          echo "CONTAINER=$CONTAINER_ID"
+
+          docker cp "$CONTAINER_ID":"$WORKSPACE_FOLDER/../.matterhorn" ./.matterhorn || echo "No .matterhorn"
+          docker cp "$CONTAINER_ID":"$WORKSPACE_FOLDER/../idea-logs/log/idea.log" ./.matterhorn/idea.log || echo "No idea-logs"          
+          
+          sudo chown -R runner:runner ${{ github.workspace }} || true
+
+      - name: Prepare 17 Java for non-container run
+        uses: actions/setup-java@v4
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') == '')
+        with:
+          distribution: 'temurin' # Need to be synced with "Force setting..." command in the next step
+          java-version: '17'
+
+      - name: Run Junie without container
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') == '')
+        timeout-minutes: 50
+        env:
+          PROJECT_STACK: ${{ steps.workflow-params.outputs.project_stack }}
+          ISSUE_TITLE: ${{ steps.workflow-params.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.workflow-params.outputs.issue_body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IDEA_VERSION: ${{ steps.workflow-params.outputs.idea_version }}
+          JUNIE_DOWNLOAD_URL: ${{ steps.workflow-params.outputs.junie_plugin_download_url }}
+          MATTERHORN_DEBUG_LOG: true
+          MULTI_RUNS: false
+        run: |
+          echo "Downloading ej-runner"
+          sudo wget -nv "${{ steps.workflow-params.outputs.junie_runner_download_url }}" -O junie-runner.jar
+
+          # https://github.com/actions/setup-java/issues/701
+          echo "Force setting java version for sudo subprocesses"
+          sudo update-alternatives --set java /usr/lib/jvm/temurin-17-jdk-amd64/bin/java
+          sudo update-alternatives --set javac /usr/lib/jvm/temurin-17-jdk-amd64/bin/javac
+          sudo java --version
+          
+          echo "Running ej-runner"
+          sudo -E java -jar junie-runner.jar                 
+
+      - name: Extracting .idea and ej-logs for non-container run
+        if: always() && (hashFiles('.devcontainer/devcontainer.json') == '')
+        run: |
+          echo "Copying logs to target dir..."
+          sudo cp -r ../.matterhorn .
+          sudo cp -r ../idea-logs/log/idea.log .matterhorn/idea.log
+          sudo chown -R runner:runner ./.matterhorn
+          sudo chown -R runner:runner ${{ github.workspace }} || true
+
+      - name: Save junie result summary
+        id: junie_summary
+        continue-on-error: true
+        run: |
+          summary=$(jq -r '.content.output' .matterhorn/*issue_md.*swe_patch*)
+          echo "summary is $summary"
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$summary" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          name=$(jq -r '.content.title' .matterhorn/*issue_md.*swe_patch*)
+          echo "name is $name"
+          name=${name:-"Improvement from Junie"}
+          echo "name=$name" >> "$GITHUB_OUTPUT" 
+
+      - name: Archive output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: output
+          path: |
+            .matterhorn/out/
+            !.matterhorn/out/attachments/**/*
+          retention-days: 7
+
+      - name: Archive attachments
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          if-no-files-found: ignore
+          name: attachments
+          path: .matterhorn/out/attachments
+          retention-days: 7
+        
+      - name: Archive matterhorn directory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matterhorn-logs
+          path: .matterhorn
+          include-hidden-files: 'true'
+          retention-days: 3
+
+      - name: Restore or remove .idea directory
+        run: |
+          sudo rm -rf .matterhorn
+          sudo rm -rf .output.txt
+          sudo rm -rf junie-runner.jar
+          sudo rm -rf solution.patch
+
+          if git ls-tree -d HEAD .idea | grep "\.idea" >/dev/null 2>&1; then
+            echo "Restoring tracked '.idea' directory"
+            git checkout -- .idea
+            git clean -f -d .idea            
+          else
+            echo "Removing untracked '.idea' directory"
+            sudo rm -rf .idea
+          fi
+
+      # Uncomment when we support auto resolve conflicts
+      # - name: Reset git changes from junie
+      #   if: always()
+      #   run: |
+      #      git reset origin/${{ steps.workflow-params.outputs.checkout_ref }}
+
+      - name: Make Pull Request for the changes
+        if: steps.workflow-params.outputs.target_ref != steps.workflow-params.outputs.checkout_ref
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ steps.workflow-params.outputs.app_token }}
+          commit-message: "${{ steps.junie_summary.outputs.name }} \n ${{ steps.junie_summary.outputs.summary }}"
+          title: "[Junie]: ${{ steps.junie_summary.outputs.name }}"
+          body: |
+            ## 📌 Hey! This PR was made for you with Junie, the coding agent by JetBrains **Early Access Preview**
+            
+            It's still learning, developing, and might make mistakes. Please make sure you review the changes before you accept them.
+            We’d love your feedback — join our Discord to share bugs, ideas: [here](https://jb.gg/junie/github).
+                                                              
+            - 🔗 **Issue:** #${{ steps.workflow-params.outputs.issue_id }}
+            - ⚙️ **Trigger:** ${{ steps.workflow-params.outputs.trigger }}
+            - 🏷 **Title:** ${{ steps.workflow-params.outputs.issue_title }}            
+            
+            ### 📊 Junie Summary
+            ${{ steps.junie_summary.outputs.summary }}
+          branch: ${{ steps.workflow-params.outputs.target_ref }}
+          base: ${{ steps.workflow-params.outputs.checkout_ref }}
+          labels: junie
+
+      - uses: EndBug/add-and-commit@v9
+        name: Commit changes to the same branch
+        if: steps.workflow-params.outputs.target_ref == steps.workflow-params.outputs.checkout_ref
+        with:
+          author_name: junie-eap[bot]
+          author_email: junie-eap[bot]@users.noreply.github.com
+          message: |
+            [issue-${{ steps.workflow-params.outputs.issue_id }}] ${{ steps.junie_summary.outputs.name }}
+            
+            ${{ steps.junie_summary.outputs.summary }}
